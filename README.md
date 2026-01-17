@@ -1,5 +1,21 @@
 # Plex Open Subtitles Downloader
 
+* Create an `.env` file
+* It must contain:
+```
+# Plex Configuration
+PLEX_URL=http://localhost:32400
+PLEX_TOKEN=your-plex-token-here
+
+# OpenSubtitles Configuration
+OPENSUBTITLES_API_KEY=your-api-key-here
+OPENSUBTITLES_USERNAME=your-username
+OPENSUBTITLES_PASSWORD=your-password
+
+# Subtitle Languages (comma-separated, 2-letter codes)
+SUBTITLE_LANGUAGES=en
+```
+
 ## Usage guide:
 
 ### Download up to 10 subtitles
