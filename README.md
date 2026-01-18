@@ -189,18 +189,18 @@ python plex_info.py --library "Movies" --verbose
 
 ## Command Line Flags
 
-| Flag | Description |
-|------|-------------|
-| `--library "NAME"` | Library name to analyze (e.g., "Movies", "TV Shows") |
-| `--list-missing` | Show only items missing subtitles |
-| `--quality` | Analyze video quality and codec distribution |
+| Flag | Description                                           |
+|------|-------------------------------------------------------|
+| `--library "NAME"` | Library name to analyze (e.g., "Movies", "TV Shows")  |
+| `--list-missing` | Show only items missing subtitles                     |
+| `--quality` | Analyze video quality and codec distribution          |
 | `--stats` | Show general statistics (watch counts, genres, years) |
-| `--health` | Check library health and identify issues |
-| `--system` | Display Plex server and library information |
-| `--type {movie\|episode}` | Filter by media type |
-| `--output FILE` | Output file for report (default: library_subtitles.txt) |
-| `--verbose` | Enable verbose logging |
-| `--help` | Show help message with all available options |
+| `--health` | Check library health and identify issues              |
+| `--system` | Display Plex server and library information           |
+| `--type {movie\|episode}` | Filter by media type                                  |
+| `--output FILE` | Output file for report (default: plex_info.txt)       |
+| `--verbose` | Enable verbose logging                                |
+| `--help` | Show help message with all available options          |
 
 ## Example Workflows
 
@@ -337,7 +337,7 @@ NEVER WATCHED: 142 items
 ## Output Files
 
 Reports are saved to the current directory:
-- `library_subtitles.txt` - Default output file
+- `plex_info.txt` - Default output file
 - Custom filename via `--output` flag
 
 Reports contain all displayed information for later reference.

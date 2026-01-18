@@ -835,7 +835,7 @@ class PlexTools:
         print("\n" + "=" * 80)
         print()
 
-    def save_library_report(self, library_items: list, output_file: str = "library_subtitles.txt"):
+    def save_library_report(self, library_items: list, output_file: str = "plex_info.txt"):
         """Save the library report to a file."""
         import io
         from contextlib import redirect_stdout
@@ -929,8 +929,8 @@ For more information, see the README.md file.
     )
     parser.add_argument(
         '--output',
-        default='library_subtitles.txt',
-        help='Output file for report (default: library_subtitles.txt)'
+        default='plex_info.txt',
+        help='Output file for report (default: plex_info.txt)'
     )
     parser.add_argument(
         '--verbose',
