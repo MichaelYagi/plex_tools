@@ -77,6 +77,46 @@ PLEX_TOKEN=your_plex_token_here
 
 ## Usage
 
+### Web App Interface (Recommended)
+
+Plex Info includes a web-based interface for easy interaction.
+
+**Start the web app:**
+
+```bash
+python server.py
+```
+
+**Access the web app:**
+
+Open your browser and navigate to: `http://localhost:9924`
+
+The web app provides:
+- ✅ Clean, mobile-responsive interface
+- ✅ Navigation sidebar
+- ✅ Interactive buttons to run all commands
+- ✅ Live output display
+- ✅ Library selection dropdowns
+- ✅ No command-line knowledge needed
+
+**Keep it running:**
+
+The server will continue running until you stop it with `Ctrl+C`. You can access the web app anytime by navigating to `http://localhost:9924` in your browser.
+
+**Run in background (optional):**
+
+To keep the web app running in the background:
+
+```bash
+# Linux/macOS
+nohup python server.py > plex_info.log 2>&1 &
+
+# Windows (PowerShell)
+Start-Process python -ArgumentList "server.py" -WindowStyle Hidden
+```
+
+### Command Line Interface
+
 ### List All Available Libraries
 
 Show all libraries on your Plex server:
@@ -189,18 +229,18 @@ python plex_info.py --library "Movies" --verbose
 
 ## Command Line Flags
 
-| Flag | Description                                           |
-|------|-------------------------------------------------------|
-| `--library "NAME"` | Library name to analyze (e.g., "Movies", "TV Shows")  |
-| `--list-missing` | Show only items missing subtitles                     |
-| `--quality` | Analyze video quality and codec distribution          |
+| Flag | Description |
+|------|-------------|
+| `--library "NAME"` | Library name to analyze (e.g., "Movies", "TV Shows") |
+| `--list-missing` | Show only items missing subtitles |
+| `--quality` | Analyze video quality and codec distribution |
 | `--stats` | Show general statistics (watch counts, genres, years) |
-| `--health` | Check library health and identify issues              |
-| `--system` | Display Plex server and library information           |
-| `--type {movie\|episode}` | Filter by media type                                  |
-| `--output FILE` | Output file for report (default: plex_info.txt)       |
-| `--verbose` | Enable verbose logging                                |
-| `--help` | Show help message with all available options          |
+| `--health` | Check library health and identify issues |
+| `--system` | Display Plex server and library information |
+| `--type {movie\|episode}` | Filter by media type |
+| `--output FILE` | Output file for report (default: library_subtitles.txt) |
+| `--verbose` | Enable verbose logging |
+| `--help` | Show help message with all available options |
 
 ## Example Workflows
 
@@ -328,7 +368,9 @@ NEVER WATCHED: 142 items
 
 ```
 .
-├── plex_info.py           # Main script
+├── plex_info.py           # Main CLI script
+├── server.py              # Web app server
+├── index.html             # Web app interface
 ├── requirements.txt       # Python dependencies
 ├── .env                   # Your Plex credentials (create this)
 └── README.md             # This file
@@ -337,7 +379,7 @@ NEVER WATCHED: 142 items
 ## Output Files
 
 Reports are saved to the current directory:
-- `plex_info.txt` - Default output file
+- `library_subtitles.txt` - Default output file
 - Custom filename via `--output` flag
 
 Reports contain all displayed information for later reference.
@@ -345,6 +387,9 @@ Reports contain all displayed information for later reference.
 ## Notes
 
 - The tool is **read-only** - it never modifies your Plex library
+- **Web app** runs on port 9924 by default (configurable in `server.py`)
+- Web app uses only Python standard library (no Flask/FastAPI needed)
+- Access the web app anytime at `http://localhost:9924` while server is running
 - System info shows local client stats, not remote Plex server hardware
 - File paths are from the Plex server's perspective
 - URLs open items directly in Plex web interface
