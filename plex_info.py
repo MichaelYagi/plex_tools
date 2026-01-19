@@ -11,8 +11,11 @@ import os
 import sys
 import argparse
 import logging
+import json
 from typing import List, Set
+from pathlib import Path
 from dotenv import load_dotenv
+from datetime import datetime
 
 from plexapi.server import PlexServer
 from plexapi.video import Movie, Episode
@@ -835,7 +838,7 @@ class PlexTools:
         print("\n" + "=" * 80)
         print()
 
-    def save_library_report(self, library_items: list, output_file: str = "plex_info.txt"):
+    def save_library_report(self, library_items: list, output_file: str = "library_subtitles.txt"):
         """Save the library report to a file."""
         import io
         from contextlib import redirect_stdout
@@ -929,13 +932,18 @@ For more information, see the README.md file.
     )
     parser.add_argument(
         '--output',
-        default='plex_info.txt',
-        help='Output file for report (default: plex_info.txt)'
+        default='library_subtitles.txt',
+        help='Output file for report (default: library_subtitles.txt)'
     )
     parser.add_argument(
         '--verbose',
         action='store_true',
         help='Enable verbose logging'
+    )
+    parser.add_argument(
+        '--export-json',
+        metavar='FILE',
+        help='Export all library data to standalone HTML file (e.g., plex_report.html)'
     )
 
     args = parser.parse_args()
@@ -953,6 +961,120 @@ For more information, see the README.md file.
             plex_url=args.plex_url,
             plex_token=args.plex_token
         )
+
+        # If --export-json flag, export all data to JSON
+        if args.export_json:
+            logger.info(f"Exporting library data with embedded JSON to HTML...")
+
+            export_data = {
+                'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                'server': {
+                    'name': tools.plex.friendlyName,
+                    'version': tools.plex.version,
+                    'platform': tools.plex.platform
+                },
+                'libraries': []
+            }
+
+            # Get all libraries
+            for section in tools.plex.library.sections():
+                logger.info(f"Processing library: {section.title}")
+
+                library_data = {
+                    'name': section.title,
+                    'type': section.type,
+                    'items': []
+                }
+
+                # Get all items in library
+                library_items = tools.list_library(section.title)
+                library_data['items'] = library_items
+
+                export_data['libraries'].append(library_data)
+
+            # Read the index.html template
+            template_path = Path(__file__).parent / 'index.html'
+            if not template_path.exists():
+                logger.error("index.html template not found!")
+                sys.exit(1)
+
+            with open(template_path, 'r', encoding='utf-8') as f:
+                html_template = f.read()
+
+            # Embed the JSON data into the HTML
+            json_data = json.dumps(export_data, indent=2, ensure_ascii=False)
+
+            # Replace the loadData function to use embedded data instead of fetch
+            html_with_data = html_template.replace(
+                'let plexData = null;',
+                f'let plexData = {json_data};'
+            )
+
+            html_with_data = html_with_data.replace(
+                'window.addEventListener(\'DOMContentLoaded\', loadData);',
+                'window.addEventListener(\'DOMContentLoaded\', initializeWithEmbeddedData);'
+            )
+
+            html_with_data = html_with_data.replace(
+                '''// Load data from JSON file
+        async function loadData() {
+            try {
+                const response = await fetch('plex_data.json');
+
+                if (!response.ok) {
+                    throw new Error('Data file not found');
+                }
+
+                plexData = await response.json();
+
+                // Hide loading, show content
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('no-data-error').style.display = 'none';
+
+                // Populate interface
+                populateServerInfo();
+                populateNavigation();
+                populateContent();
+
+            } catch (error) {
+                console.error('Error loading data:', error);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('no-data-error').style.display = 'block';
+            }
+        }''',
+                '''// Initialize with embedded data
+        function initializeWithEmbeddedData() {
+            if (!plexData) {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('no-data-error').style.display = 'block';
+                return;
+            }
+
+            // Hide loading, show content
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('no-data-error').style.display = 'none';
+
+            // Populate interface
+            populateServerInfo();
+            populateNavigation();
+            populateContent();
+        }'''
+            )
+
+            # Write the HTML file with embedded data
+            output_file = args.export_json
+            if not output_file.endswith('.html'):
+                output_file = output_file.replace('.json', '.html')
+
+            with open(output_file, 'w', encoding='utf-8') as f:
+                f.write(html_with_data)
+
+            logger.info(f"✓ Successfully exported data to {output_file}")
+            logger.info(f"Total libraries: {len(export_data['libraries'])}")
+            total_items = sum(len(lib['items']) for lib in export_data['libraries'])
+            logger.info(f"Total items: {total_items}")
+            logger.info(f"Open {output_file} in your browser to view the data")
+            return
 
         # If --system flag, show system info and exit
         if args.system:
